@@ -1,4 +1,6 @@
 from fastapi import APIRouter
+from def_custom.dbconn import influxdb_conn
+
 
 router = APIRouter(
     prefix="/k11",
@@ -17,10 +19,6 @@ def read_root():
 def read_item(item_id: int, q: Optional[str] = None):
     return {"item_id": item_id, "q": q}
 
-
-@router.get("/test1")
-def test1(request: Request):
-    return k11.read_root()
 
 
 @router.get("/test2")
@@ -77,41 +75,6 @@ def read_bank_summary_soc(request: Request):
 def read_cells_for_histogram(request: Request, bank_idx: int = 0):
     return k11.read_cells_for_histogram(bank_idx)
 
-
-@router.get("/dashboards/", response_model=List[schemas.Dashboard])
-def read_dashboards(skip: int = 0,
-                    limit: int = 100,
-                    db: Session = Depends(get_db)):
-    dashboards = crud.get_dashboards(db, skip=skip, limit=limit)
-    return dashboards
-
-
-@router.get("/dashboards/{dashboard_id}", response_model=schemas.Dashboard)
-def read_dashboard(dashboard_id: str, db: Session = Depends(get_db)):
-    db_dashboard = crud.get_dashboard(db, dashboard_id=dashboard_id)
-    if db_dashboard is None:
-        raise HTTPException(status_code=404, detail="Dashboard not found")
-    return db_dashboard
-
-
-@router.post("/dashboards/", response_model=schemas.Dashboard)
-def create_dashboard(dashboard: schemas.DashboardCreate,
-                     db: Session = Depends(get_db)):
-    return crud.create_dashboard(db=db, dashboard=dashboard)
-
-
-@router.put("/dashboards/{dashboard_id}", response_model=schemas.Dashboard)
-def update_dashboard(dashboard_id: str,
-                     dashboard: schemas.DashboardUpdate,
-                     db: Session = Depends(get_db)):
-    return crud.update_dashboard(db=db,
-                                 dashboard_id=dashboard_id,
-                                 dashboard=dashboard)
-
-
-@router.delete("/dashboards/{dashboard_id}", response_model=schemas.Dashboard)
-def delete_dashboard(dashboard_id: str, db: Session = Depends(get_db)):
-    return crud.delete_dashboard(db=db, dashboard_id=dashboard_id)
 
 
 # 20220420 hjh added start
